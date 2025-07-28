@@ -1,0 +1,38 @@
+# yusuke_ios_streamlit_app
+
+import streamlit as st
+from yt_dlp import YoutubeDL
+
+st.set_page_config(page_title="📱 iOS向け動画ダウンロード", layout="centered")
+
+st.title("📥 iOS専用 動画ダウンロードリンク生成")
+st.markdown("以下に動画のURLを入力してください。iOS Safariで再生・長押し保存が可能です。")
+
+url = st.text_input("🎞️ 動画URLを入力", placeholder="https://www.youtube.com/watch?v=XXXXXXX")
+
+if st.button("🔗 ダウンロードリンクを取得"):
+    if not url.strip():
+        st.warning("URLを入力してください。")
+    else:
+        with st.spinner("動画情報を取得中..."):
+            try:
+                ydl_opts = {
+                    'quiet': True,
+                    'skip_download': True,
+                    'noplaylist': True,
+                }
+                with YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    formats = info.get("formats", [])
+                    best = next((f for f in formats if f.get("ext") == "mp4" and f.get("acodec") != "none"), None)
+                    video_url = best.get("url") if best else None
+                    title = info.get("title", "video")
+
+                if video_url:
+                    st.success("✅ ダウンロードリンクを取得しました！")
+                    st.video(video_url)
+                    st.markdown(f"[📥 長押しして保存: {title}]({video_url})", unsafe_allow_html=True)
+                else:
+                    st.error("❌ 再生可能なリンクが見つかりませんでした。")
+            except Exception as e:
+                st.error(f"❌ エラーが発生しました: {e}")
