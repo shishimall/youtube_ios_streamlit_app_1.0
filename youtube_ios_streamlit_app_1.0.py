@@ -1,4 +1,4 @@
-# yusuke_ios_streamlit_app
+# yutube_ios_streamlit_app 
 
 import streamlit as st
 from yt_dlp import YoutubeDL
